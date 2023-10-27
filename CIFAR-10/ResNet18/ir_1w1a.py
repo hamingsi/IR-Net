@@ -19,6 +19,7 @@ class IRConv2d(nn.Conv2d):
         #w.view(w.size(0),w.size(1),-1)
         bw = w - w.view(w.size(0), -1).mean(-1).view(w.size(0), 1, 1, 1)
         bw = bw / bw.view(bw.size(0), -1).std(-1).view(bw.size(0), 1, 1, 1)
+        #ln(x)/ln(2) = log2(x)
         sw = torch.pow(torch.tensor([2]*bw.size(0)).cuda().float(), (torch.log(bw.abs().view(bw.size(0), -1).mean(-1)) / math.log(2)).round().float()).view(bw.size(0), 1, 1, 1).detach()
         bw = binaryfunction.BinaryQuantize().apply(bw, self.k, self.t)
         ba = binaryfunction.BinaryQuantize().apply(a, self.k, self.t)
