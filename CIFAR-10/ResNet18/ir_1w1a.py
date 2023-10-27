@@ -15,6 +15,8 @@ class IRConv2d(nn.Conv2d):
     def forward(self, input):
         w = self.weight
         a = input
+        #w(out_c, in_c, kernel_size, kernel_size)
+        #w.view(w.size(0),w.size(1),-1)
         bw = w - w.view(w.size(0), -1).mean(-1).view(w.size(0), 1, 1, 1)
         bw = bw / bw.view(bw.size(0), -1).std(-1).view(bw.size(0), 1, 1, 1)
         sw = torch.pow(torch.tensor([2]*bw.size(0)).cuda().float(), (torch.log(bw.abs().view(bw.size(0), -1).mean(-1)) / math.log(2)).round().float()).view(bw.size(0), 1, 1, 1).detach()
